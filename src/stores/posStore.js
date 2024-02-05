@@ -33,6 +33,7 @@ export const usePosStore = defineStore("posStore", {
 		fetchCategories() {
 			return new Promise((resolve, reject) => {
 				const config = this.axiosConfig
+				config.method = 'GET'
 				config.url = `${this.apiUrl}v1/products/categories?page=${this.categoriesPage}`
 				if (this.categoryFilter) {
 					config.url = `${this.apiUrl}v1/products/categories/tree?q_q=${this.categoryFilter}&page=${this.categoriesPage}`
@@ -53,6 +54,7 @@ export const usePosStore = defineStore("posStore", {
 		fetchCategoryItems() {
 			return new Promise((resolve, reject) => {
 				const config = this.axiosConfig
+				config.method = 'GET'
 				config.url = `${this.apiUrl}v1/products/locations/all?q_Category=${this.selectedCategoryId}&page=${this.selectedCategoryPage}`
 				if (this.selectedCategoryItemsFilter) {
 					config.url = `${this.apiUrl}v1/products/locations/all?q_name=${this.selectedCategoryItemsFilter}&page=${this.selectedCategoryPage}`
@@ -73,6 +75,7 @@ export const usePosStore = defineStore("posStore", {
 		fetchProductDetails(itemId) {
 			return new Promise((resolve, reject) => {
 				const config = this.axiosConfig
+				config.method = 'GET'
 				config.url = `${this.apiUrl}v1/products/${itemId}`
 				axios.request(config)
 					.then((response) => {
