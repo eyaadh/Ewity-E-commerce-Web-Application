@@ -1,21 +1,11 @@
 <template>
   <div class="bg-white">
     <div class="sm:py-2 xl:mx-auto xl:max-w-7xl xl:px-8">
-      <div
-        class="px-6 py-2.5 border-b flex flex-col text-center w-full space-y-2.5 sm:py-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+      <div id="header"
+           class="px-6 py-2.5 border-b flex items-center justify-between w-full sm:py-4">
         <h2 class="text-2xl font-bold tracking-tight text-gray-900">Shop by Category</h2>
 
-        <div class="flex rounded-md shadow-sm">
-          <div class="relative flex-grow focus-within:z-10">
-            <div class="absolute inset-y-0 left-0 flex items-center pl-3">
-              <MagnifyingGlassIcon class="pointer-events-none h-5 w-5 text-gray-400"
-                                   aria-hidden="true"/>
-            </div>
-            <input type="text" name="search" id="search" v-model="posStore.selectedCategoryItemsFilter"
-                   class="w-full rounded-md border-0 py-1.5 pl-10 text-sm leading-6 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-neutral-600 sm:block"
-                   placeholder="Search products..."/>
-          </div>
-        </div>
+        <FilterPopover/>
       </div>
 
       <div class="mt-8 px-4 flow-root">
@@ -30,9 +20,10 @@
                  class="group flex flex-col justify-between outline p-4 rounded-2xl">
               <div
                 class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
-                <img :src="item.variants[0].images ? item.variants[0].images[0].url : posStore.productDefaultImage"
-                     :alt="item.name"
-                     class="h-full w-full object-cover object-center group-hover:opacity-75"/>
+                <img
+                  :src="item.variants[0].images.length > 0 ? item.variants[0].images[0].url : posStore.productDefaultImage"
+                  :alt="item.name"
+                  class="h-full w-full object-cover object-center group-hover:opacity-75"/>
               </div>
               <h3 class="mt-4 text-sm text-gray-700">{{ item.name }}</h3>
               <p class="mt-1 text-lg font-medium text-gray-900">MRF. {{ item.sales_price_with_tax }}</p>
@@ -76,12 +67,12 @@
 
 <script setup>
 import {TransitionRoot} from "@headlessui/vue";
-import {onBeforeMount, ref, watch} from "vue";
-import {MagnifyingGlassIcon} from "@heroicons/vue/20/solid/index.js";
+import {onBeforeMount, onMounted, ref, watch} from "vue";
 import {usePosStore} from "@/stores/posStore.js";
 import {useRoute} from "vue-router";
 import Pagination from "@/components/pagination.vue";
 import {debounce} from "lodash";
+import FilterPopover from "@/components/FilterPopover.vue";
 
 const moving = ref(false)
 const posStore = usePosStore()
@@ -98,7 +89,7 @@ const addToCart = (item) => {
       itemForCart.variant_id = resp.variants[0].id
       itemForCart.product_id = resp.id
       itemForCart.product_name = resp.name
-      itemForCart.product_image = resp.variants[0].images ? resp.variants[0].images[0].url : posStore.productDefaultImage
+      itemForCart.product_image = resp.variants[0].images.length > 0 ? resp.variants[0].images[0].url : posStore.productDefaultImage
       itemForCart.unit = resp.units.base
       itemForCart.unit_quantity = qty
       itemForCart.quantity = qty
@@ -122,8 +113,7 @@ const pageChange = (newPage) => {
   posStore.selectedCategoryPage = newPage
   posStore.fetchCategories()
     .then(_ => {
-      let element = document.getElementById("search")
-      element.scrollIntoView({behavior: "smooth", block: "start"});
+      scrollToHeader()
       moving.value = false
     })
 }
@@ -134,11 +124,19 @@ watch(() => posStore.selectedCategoryItemsFilter, debounce((_) => {
   posStore.selectedCategoryPage = 1
   posStore.fetchCategoryItems()
     .then(_ => {
-      let element = document.getElementById("search")
-      element.scrollIntoView({behavior: "smooth", block: "start"});
+      scrollToHeader()
       moving.value = false
     })
 }, 500))
+
+const scrollToHeader = () => {
+  let element = document.getElementById("header")
+  element.scrollIntoView({behavior: "smooth", block: "start"});
+}
+
+onMounted(() => {
+  scrollToHeader()
+})
 
 onBeforeMount(() => {
   posStore.selectedCategoryId = route.query.id

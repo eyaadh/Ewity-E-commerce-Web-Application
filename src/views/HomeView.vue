@@ -1,20 +1,11 @@
 <template>
   <div class="bg-white">
     <div class="sm:py-2 xl:mx-auto xl:max-w-7xl xl:px-8">
-      <div
-        class="px-6 py-2.5 border-b flex flex-col text-center w-full space-y-2.5 sm:py-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+      <div id="header"
+        class="px-6 py-2.5 border-b flex items-center justify-between w-full sm:py-4">
         <h2 class="text-2xl font-bold tracking-tight text-gray-900">Shop by Category</h2>
 
-        <div class="flex rounded-md shadow-sm">
-          <div class="relative flex-grow focus-within:z-10">
-            <div class="absolute inset-y-0 left-0 flex items-center pl-3">
-              <MagnifyingGlassIcon class="pointer-events-none h-5 w-5 text-gray-400" aria-hidden="true"/>
-            </div>
-            <input type="text" name="search" id="search" v-model="posStore.categoryFilter"
-                   class="w-full rounded-md border-0 py-1.5 pl-10 text-sm leading-6 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-neutral-600 sm:block"
-                   placeholder="Search categories..."/>
-          </div>
-        </div>
+        <FilterPopover />
       </div>
 
       <div class="mt-8 flow-root">
@@ -35,10 +26,10 @@
                 </span>
               <span aria-hidden="true"
                     class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-neutral-800 opacity-90 hover:opacity-50"/>
-              <span
-                class="absolute pl-2.5 pr-1 py-2 rounded-l-2xl right-0 text-right text-xs sm:text-md font-bold text-white bg-neutral-900 shadow">{{
-                  category.name
-                }} ( {{ category.product_count }} )</span>
+              <div class="relative flex flex-col gap-2 sm:flex-row sm:justify-between mt-auto text-center text-sm font-bold text-white bg-neutral-900/40 p-2 rounded-lg ">
+                <span class="whitespace-nowrap truncate">{{category.name }}</span>
+                <span class="bg-white/10 rounded-full px-2">{{category.product_count}}</span>
+              </div>
             </RouterLink>
           </div>
         </TransitionRoot>
@@ -117,7 +108,7 @@
 
 <script setup>
 import {TransitionRoot} from "@headlessui/vue";
-import {MagnifyingGlassIcon, XCircleIcon} from "@heroicons/vue/20/solid/index.js";
+import {XCircleIcon} from "@heroicons/vue/20/solid/index.js";
 import {useUserStore} from "@/stores/userStore.js";
 import {computed, onBeforeMount, onMounted, reactive, ref, watch} from "vue";
 import SlideOver from "@/components/SlideOver.vue";
@@ -127,6 +118,7 @@ import {usePosStore} from "@/stores/posStore.js";
 import Pagination from "@/components/pagination.vue";
 import {debounce} from "lodash";
 import {useRoute} from "vue-router";
+import FilterPopover from "@/components/FilterPopover.vue";
 
 const userStore = useUserStore()
 const posStore = usePosStore()
@@ -172,8 +164,7 @@ watch(() => posStore.categoryFilter, debounce((_) => {
   posStore.categoriesPage = 1
   posStore.fetchCategories()
     .then(_ => {
-      let element = document.getElementById("search")
-      element.scrollIntoView({behavior: "smooth", block: "start"});
+      scrollToHeader()
       moving.value = false
     })
 }, 500))
@@ -183,13 +174,18 @@ const pageChange = (newPage) => {
   posStore.categoriesPage = newPage
   posStore.fetchCategories()
     .then(_ => {
-      let element = document.getElementById("search")
-      element.scrollIntoView({behavior: "smooth", block: "start"});
+      scrollToHeader()
       moving.value = false
     })
 }
 
+const scrollToHeader = () => {
+  let element = document.getElementById("header")
+  element.scrollIntoView({behavior: "smooth", block: "start"});
+}
+
 onMounted(() => {
+  scrollToHeader()
   userStore.fetchUserDetails()
     .then(u => {
       if (!u) {
