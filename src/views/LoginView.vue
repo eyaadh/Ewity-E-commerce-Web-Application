@@ -5,6 +5,23 @@
       <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Sign in to continue</h2>
     </div>
 
+    <TransitionRoot
+      :show="isError"
+      enter="transition ease-in-out duration-700 transform" enter-from="translate-x-full" enter-to="translate-x-0"
+    >
+      <div class="rounded-xl max-w-sm mx-auto bg-white p-4 mt-4 outline outline-gray-200">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <XCircleIcon class="h-5 w-5 text-red-400" aria-hidden="true"/>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">Sign in error:</h3>
+            <p class="mt-2 text-sm text-red-700 list-disc pl-5 capitalize">{{ errorMessage }}</p>
+          </div>
+        </div>
+      </div>
+    </TransitionRoot>
+
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
       <form class="space-y-6" action="#" method="POST">
         <div>
@@ -51,12 +68,16 @@ import {RecaptchaVerifier, signInWithPhoneNumber} from "firebase/auth";
 import {onMounted, ref} from "vue";
 import {useUserStore} from "@/stores/userStore.js";
 import {useRouter} from "vue-router";
+import {XCircleIcon} from '@heroicons/vue/20/solid'
+
 
 const verificationCodeEntry = ref(false)
 const phoneNumber = ref(null)
 const verificationCode = ref(null)
 const userStore = useUserStore()
 const router = useRouter()
+const isError = ref(false)
+const errorMessage = ref(null)
 
 const prepareSignIn = () => {
   if (verificationCodeEntry.value) {
@@ -66,6 +87,8 @@ const prepareSignIn = () => {
         router.push({name: 'home'})
       }).catch((error) => {
       console.error(error)
+      errorMessage.value = error.code.split('/')[1].trim()
+      isError.value = true
     });
   } else {
     signInWithPhoneNumber(auth, phoneNumber.value, window.recaptchaVerifier)
@@ -73,7 +96,9 @@ const prepareSignIn = () => {
         verificationCodeEntry.value = true
         window.confirmationResult = confirmationResult;
       }).catch((error) => {
-      console.error(error)
+      console.log(error.code);
+      errorMessage.value = error.code.split('/')[1].trim()
+      isError.value = true
     });
   }
 }
