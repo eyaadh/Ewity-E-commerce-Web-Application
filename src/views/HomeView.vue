@@ -28,7 +28,7 @@
             class="px-4 sm:px-6 gap-6 grid grid-cols-2 md:grid-cols-3 xl:gap-x-8 xl:space-x-0 xl:px-0">
             <RouterLink v-for="category in posStore.categories" :key="category.id"
                         :to="{query: {...route.query, ['id']: category.id}, name: 'category'}"
-                        class="group relative flex h-60 sm:h-80 w-44 sm:w-56 flex-col overflow-hidden rounded-lg p-6 hover:outline xl:w-auto">
+                        class="group relative flex h-40 sm:h-60 flex-col overflow-hidden rounded-lg p-6 hover:outline xl:w-auto">
                 <span aria-hidden="true" class="absolute inset-0">
                   <img :src="category.image? category.image.url: posStore.categoriesDefaultImage" :alt="category.name"
                        class="h-full w-full object-cover object-center group-hover:scale-105"/>
