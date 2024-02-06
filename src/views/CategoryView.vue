@@ -61,7 +61,7 @@
                              leave-from="opacity-100 translate-y-0 sm:scale-100"
                              leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
               <DialogPanel
-                class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 w-full text-left shadow-xl transition-all sm:my-8 sm:max-w-lg sm:p-6">
+                class="relative transform rounded-lg bg-white px-4 pb-4 pt-5 w-full text-left shadow-xl transition-all sm:my-8 sm:max-w-lg sm:p-6">
                 <div>
                   <div class="mx-auto flex h-40 w-40 items-center rounded-md justify-center bg-green-100">
                     <img
@@ -72,7 +72,7 @@
                     <DialogTitle as="h3" class="text-base font-semibold leading-6 text-gray-900">
                       {{ selectedItem.name }}
                     </DialogTitle>
-                    <div class="mt-2 flex flex-col space-y-2 sm:space-y-0 sm:flex-row justify-between">
+                    <div class="mt-2 flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-4 justify-between">
                       <div class="flex flex-col justify-between text-left">
                         <p class="mt-1 text-lg font-medium text-gray-500">MRF. {{ selectedItem.sales_price_with_tax }} /
                           {{ selectedItem.units.base }}</p>
@@ -81,15 +81,11 @@
                         <p class="mt-1 text-xs italic text-gray-400">Prices are inclusive of tax when applicable.</p>
                       </div>
                       <div class="text-left">
-                        <label for="product-qty"
-                               class="block text-sm font-medium leading-6 text-gray-900">Quantity</label>
-                        <select id="product-qty" name="product-qty" :disabled="selectedItem.count < 1"
-                                :id="`qty-${selectedItem.id}`" @change="selectedQty = $event.target.value"
-                                class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-neutral-600 sm:text-sm sm:leading-6">
-                          <template v-for="i in selectedItem.count">
-                            <option :value="i">{{ i }}</option>
-                          </template>
-                        </select>
+                        <ComboBox
+                          label="Quantity"
+                          :items="Array.from({ length: selectedItem.count }, (_, index) => ({ id: index + 1, name: `${index + 1}` }))"
+                          @selected="selectedQty = $event.id"
+                        />
                       </div>
                     </div>
                   </div>
@@ -124,6 +120,7 @@ import Pagination from "@/components/pagination.vue";
 import {debounce} from "lodash";
 import FilterPopover from "@/components/FilterPopover.vue";
 import {Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot} from '@headlessui/vue'
+import ComboBox from "@/components/ComboBox.vue";
 
 const moving = ref(false)
 const posStore = usePosStore()
