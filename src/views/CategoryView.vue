@@ -15,38 +15,21 @@
           enter="transition ease-in-out duration-700 transform" enter-from="scale-0" enter-to="scale-100"
           leave="transition ease-in-out duration-700 transform" leave-from="opacity-100" leave-to="opacity-0"
         >
-          <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-            <div v-for="item in posStore.selectedCategoryItems" :key="item.id"
-                 class="group flex flex-col justify-between outline p-4 rounded-2xl">
+          <div class="mt-6 grid grid-cols-2 gap-x-4 gap-y-6 sm:gap-x-6 md:grid-cols-4 ">
+            <div
+              @click="openItemAddToCartDialog(item)"
+              v-for="item in posStore.selectedCategoryItems" :key="item.id"
+              class="relative cursor-pointer group h-48 w-full overflow-hidden rounded-md border border-gray-100 shadow-md bg-gray-200 group-hover:opacity-75">
+              <img
+                :src="item.variants[0].images.length > 0 ? item.variants[0].images[0].url : posStore.productDefaultImage"
+                :alt="item.name" class="h-full w-full object-cover object-center"/>
+              <span aria-hidden="true"
+                    class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-neutral-200"/>
               <div
-                class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
-                <img
-                  :src="item.variants[0].images.length > 0 ? item.variants[0].images[0].url : posStore.productDefaultImage"
-                  :alt="item.name"
-                  class="h-full w-full object-cover object-center group-hover:opacity-75"/>
-              </div>
-              <h3 class="mt-4 text-sm text-gray-700">{{ item.name }}</h3>
-              <p class="mt-1 text-lg font-medium text-gray-900">MRF. {{ item.sales_price_with_tax }}</p>
-              <p class="mt-1 text-xs italic text-gray-400">Prices are inclusive of tax when applicable.</p>
-
-              <div class="mt-6 flex gap-2">
-                <button
-                  @click="addToCart(item)"
-                  :disabled="item.count < 1"
-                  class="w-full rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 disabled:text-gray-400 disabled:hover:bg-gray-100 hover:bg-gray-200 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-600">
-                  <span class="flex sm:flex-col w-full justify-center items-center gap-2">
-                    <span class="material-symbols-outlined sm:mb-2">shopping_bag</span>
-                    <span>{{ item.count < 1 ? 'Out of stock' : 'Add to bag' }}</span>
-                  </span>
-                </button>
-                <div class="flex flex-col justify-between items-end border p-2 rounded-md">
-                  <label for="location" class="block text-sm font-medium leading-6 text-gray-900">QTY</label>
-                  <select :disabled="item.count < 1" :id="`qty-${item.id}`"
-                          class="mt-4 block w-auto rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-600 sm:text-sm sm:leading-6">
-                    <template v-for="i in item.count">
-                      <option :value="i">{{ i }}</option>
-                    </template>
-                  </select>
+                class="absolute bg-neutral-100/70 w-full bottom-0 py-1 px-2 h-20 text-gray-900 group-hover:bg-neutral-100/40">
+                <h3 class="mt-2 font-bold text-sm">{{ item.name }}</h3>
+                <div>
+                  <p class="mt-1 text-xs">MRF. {{ item.sales_price_with_tax }}</p>
                 </div>
               </div>
             </div>
@@ -62,47 +45,132 @@
         />
       </div>
     </div>
+
+    <TransitionRoot as="template" :show="itemDialogOpenState">
+      <Dialog as="div" class="relative z-10" @close="closeAddToCartDialog">
+        <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100"
+                         leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
+          <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"/>
+        </TransitionChild>
+
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <TransitionChild as="template" enter="ease-out duration-300"
+                             enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                             enter-to="opacity-100 translate-y-0 sm:scale-100" leave="ease-in duration-200"
+                             leave-from="opacity-100 translate-y-0 sm:scale-100"
+                             leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+              <DialogPanel
+                class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 w-full text-left shadow-xl transition-all sm:my-8 sm:max-w-lg sm:p-6">
+                <div>
+                  <div class="mx-auto flex h-40 w-40 items-center rounded-md justify-center bg-green-100">
+                    <img
+                      :src="selectedItem.variants[0].images.length > 0 ? selectedItem.variants[0].images[0].url : posStore.productDefaultImage"
+                      :alt="selectedItem.name" class="h-full w-full object-cover object-center rounded-md"/>
+                  </div>
+                  <div class="mt-3 text-center sm:mt-5">
+                    <DialogTitle as="h3" class="text-base font-semibold leading-6 text-gray-900">
+                      {{ selectedItem.name }}
+                    </DialogTitle>
+                    <div class="mt-2 flex flex-col space-y-2 sm:space-y-0 sm:flex-row justify-between">
+                      <div class="flex flex-col justify-between text-left">
+                        <p class="mt-1 text-lg font-medium text-gray-500">MRF. {{ selectedItem.sales_price_with_tax }} /
+                          {{ selectedItem.units.base }}</p>
+                        <p class="mt-1 text-sm font-medium text-gray-500">Total: MRF.
+                          {{ (selectedItem.sales_price_with_tax * selectedQty).toFixed(2) }}</p>
+                        <p class="mt-1 text-xs italic text-gray-400">Prices are inclusive of tax when applicable.</p>
+                      </div>
+                      <div class="text-left">
+                        <label for="product-qty"
+                               class="block text-sm font-medium leading-6 text-gray-900">Quantity</label>
+                        <select id="product-qty" name="product-qty" :disabled="selectedItem.count < 1"
+                                :id="`qty-${selectedItem.id}`" @change="selectedQty = $event.target.value"
+                                class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-neutral-600 sm:text-sm sm:leading-6">
+                          <template v-for="i in selectedItem.count">
+                            <option :value="i">{{ i }}</option>
+                          </template>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+                  <button type="button"
+                          :disabled="selectedItem.count < 1"
+                          class="inline-flex w-full justify-center rounded-md bg-neutral-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-neutral-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-600 disabled:bg-neutral-200 sm:col-start-2"
+                          @click="addToCart(selectedItem)">
+                    {{ selectedItem.count < 1 ? 'Out of stock' : 'Add to cart' }}
+                  </button>
+                  <button type="button"
+                          class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
+                          @click="closeAddToCartDialog"
+                          ref="cancelButtonRef">Cancel
+                  </button>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </div>
+      </Dialog>
+    </TransitionRoot>
   </div>
 </template>
 
 <script setup>
-import {TransitionRoot} from "@headlessui/vue";
 import {onBeforeMount, onMounted, ref, watch} from "vue";
 import {usePosStore} from "@/stores/posStore.js";
 import {useRoute} from "vue-router";
 import Pagination from "@/components/pagination.vue";
 import {debounce} from "lodash";
 import FilterPopover from "@/components/FilterPopover.vue";
+import {Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot} from '@headlessui/vue'
 
 const moving = ref(false)
 const posStore = usePosStore()
 const route = useRoute()
 
+const itemDialogOpenState = ref(false)
+
+const selectedItem = ref(null)
+const selectedQty = ref(0)
+
+const openItemAddToCartDialog = (item) => {
+  selectedItem.value = item
+  selectedQty.value = 1
+  itemDialogOpenState.value = true
+}
+
+const closeAddToCartDialog = () => {
+  itemDialogOpenState.value = false
+  selectedQty.value = 1
+}
+
 const addToCart = (item) => {
-  // 1. get the quantity that has been selected for the item
-  const qty = document.getElementById(`qty-${item.id}`).value
-  // 2. get the product details to gather tax associated with it.
+  // 1. get the product details to gather tax associated with it.
   posStore.fetchProductDetails(item.id)
     .then(resp => {
-      // 3. prepare the item with the least details needed to be added to cart
+      // 2. prepare the item with the least details needed to be added to cart
       let itemForCart = {}
       itemForCart.variant_id = resp.variants[0].id
       itemForCart.product_id = resp.id
       itemForCart.product_name = resp.name
       itemForCart.product_image = resp.variants[0].images.length > 0 ? resp.variants[0].images[0].url : posStore.productDefaultImage
       itemForCart.unit = resp.units.base
-      itemForCart.unit_quantity = qty
-      itemForCart.quantity = qty
+      itemForCart.unit_quantity = selectedQty.value
+      itemForCart.quantity = selectedQty.value
       itemForCart.unit_sales_price = resp.sales_price
-      itemForCart.total_sales_price = (resp.sales_price * qty)
+      itemForCart.total_sales_price = (resp.sales_price * selectedQty.value)
       itemForCart.base_sales_price = resp.sales_price
-      itemForCart.total_base_sales_price = (resp.sales_price * qty)
+      itemForCart.total_base_sales_price = (resp.sales_price * selectedQty.value)
       itemForCart.base_tax_amount = resp.sales_price_with_tax
-      itemForCart.total_base_tax_amount = (resp.sales_price_with_tax * qty)
+      itemForCart.total_base_tax_amount = (resp.sales_price_with_tax * selectedQty.value)
       itemForCart.taxes = resp.taxes
 
-      // 4. finally add it to cart
+      // 3. finally add it to cart
       posStore.myCart.push(itemForCart)
+
+      // 4. hide the dialog
+      closeAddToCartDialog()
     })
 
 
