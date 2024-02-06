@@ -47,7 +47,7 @@
     </div>
 
     <TransitionRoot as="template" :show="itemDialogOpenState">
-      <Dialog as="div" class="relative z-10" @close="closeAddToCartDialog">
+      <Dialog as="div" class="relative z-10" @close="closeAddToCartDialog" :initial-focus="initialFocus">
         <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100"
                          leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
           <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"/>
@@ -93,14 +93,15 @@
                 <div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
                   <button type="button"
                           :disabled="selectedItem.count < 1"
+                          ref="initialFocus"
                           class="inline-flex w-full justify-center rounded-md bg-neutral-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-neutral-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-600 disabled:bg-neutral-200 sm:col-start-2"
                           @click="addToCart(selectedItem)">
                     {{ selectedItem.count < 1 ? 'Out of stock' : 'Add to cart' }}
                   </button>
                   <button type="button"
-                          class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
-                          @click="closeAddToCartDialog"
-                          ref="cancelButtonRef">Cancel
+                          class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-600 "
+                          @click="closeAddToCartDialog">
+                    Cancel
                   </button>
                 </div>
               </DialogPanel>
@@ -130,6 +131,7 @@ const itemDialogOpenState = ref(false)
 
 const selectedItem = ref(null)
 const selectedQty = ref(0)
+const initialFocus = ref(null)
 
 const openItemAddToCartDialog = (item) => {
   selectedItem.value = item
