@@ -32,7 +32,7 @@ export const useUserStore = defineStore("userStore", {
 		fetchUserDetails() {
 			return new Promise((resolve, reject) => {
 				const config = this.axiosConfig
-				config.url = `https://cros-proxy.eyaadh.workers.dev/?apiUrl=https://api.ewitypos.com/v1/customers?q_q=${this.userData.phoneNumber}`
+				config.url = `${this.apiUrl}v1/customers?q_q=${this.userData.phoneNumber}`
 				axios.request(config)
 					.then((response) => {
 						this.user = response.data.pagination.total > 0 ? response.data.data[0] : null
