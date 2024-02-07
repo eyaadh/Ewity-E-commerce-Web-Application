@@ -2,7 +2,7 @@
   <div ref="container" class="flex gap-4 items-center">
     <input v-for="n in length" :key="n"
            @keyup="(e) => handleEnter(e, n-1)"
-           v-model="otpArray[n-1]" type="text" maxlength="1" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-neutral-600 sm:text-sm sm:leading-6"/>
+           v-model="otpArray[n-1]" type="number" maxlength="1" class="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-neutral-600 sm:text-sm sm:leading-6"/>
   </div>
 </template>
 
