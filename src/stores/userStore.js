@@ -8,6 +8,7 @@ export const useUserStore = defineStore("userStore", {
 		userData: null,
 		user: null,
 		loadingSession: false,
+		apiUrl: import.meta.env.VITE_POS_API_URL,
 		axiosConfig: {
 			method: 'get',
 			maxBodyLength: Infinity,
